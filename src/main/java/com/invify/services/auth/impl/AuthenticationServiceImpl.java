@@ -6,9 +6,11 @@ import com.invify.dto.UserLoginDTO;
 import com.invify.dto.UserRegisterDTO;
 import com.invify.entities.User;
 import com.invify.enums.ReturnCode;
+import com.invify.enums.Role;
 import com.invify.repositories.UserRepository;
 import com.invify.services.JwtService;
 import com.invify.services.auth.AuthenticationService;
+import com.invify.utils.ResponseAPIUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,22 +32,34 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
 
     @Override
+    public APIResponseDTO createAdmin(UserRegisterDTO request) {
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .fullName(request.getFullName())
+                .role(Role.ADMIN)
+                .createdDate(LocalDateTime.now())
+                .build();
+
+        userRepository.save(user);
+
+        return ResponseAPIUtil.success(ReturnCode.DATA_SUCCESSFULLY_CREATED.getCode(), ReturnCode.DATA_SUCCESSFULLY_CREATED.getMessage());
+    }
+
+    @Override
     public APIResponseDTO registerUser(UserRegisterDTO userRegisterDTO) {
         User user = User.builder()
                 .userId(UUID.randomUUID())
                 .email(userRegisterDTO.getEmail())
                 .password(passwordEncoder.encode(userRegisterDTO.getPassword()))
                 .fullName(userRegisterDTO.getFullName())
+                .role(Role.CUSTOMER)
                 .createdDate(LocalDateTime.now())
                 .build();
 
         userRepository.save(user);
 
-        return APIResponseDTO.builder()
-                .success(true)
-                .message(ReturnCode.DATA_SUCCESSFULLY_CREATED.getMessage())
-                .data(ReturnCode.DATA_SUCCESSFULLY_CREATED.getCode())
-                .build();
+        return ResponseAPIUtil.success(ReturnCode.DATA_SUCCESSFULLY_CREATED.getCode(), ReturnCode.DATA_SUCCESSFULLY_CREATED.getMessage());
     }
 
     @Override
@@ -58,7 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     )
             );
         } catch (BadCredentialsException e) {
-            throw new BadCredentialsException("Invalid username or password");
+            throw new BadCredentialsException("Invalid email or password");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -68,13 +82,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         LoginResponseDTO loginResponseDTO = LoginResponseDTO.builder()
                 .token(token)
                 .expiresIn(jwtService.getJwtExpirations())
+                .role(user.getRole().name())
                 .build();
 
-        return APIResponseDTO.builder()
-                .message(ReturnCode.LOGIN_SUCCESSFULLY.getMessage())
-                .success(true)
-                .data(loginResponseDTO)
-                .build();
-
+        return ResponseAPIUtil.success(loginResponseDTO, ReturnCode.LOGIN_SUCCESSFULLY.getMessage());
     }
 }
