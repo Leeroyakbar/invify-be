@@ -1,6 +1,7 @@
 package com.invify.entities;
 
 import com.invify.enums.Role;
+import com.invify.enums.SubscriptionPlan;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,6 +44,12 @@ public class User implements UserDetails {
     @Column(name = "ROLE", nullable = false)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "SUBSCRIPTION_PLAN")
+    private SubscriptionPlan subscriptionPlan;
+
+    @Column(name = "ACTIVE_STATUS")
+    private Integer activeStatus;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
