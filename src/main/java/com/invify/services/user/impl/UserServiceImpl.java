@@ -7,6 +7,7 @@ import com.invify.dto.UserResponseDTO;
 import com.invify.entities.User;
 import com.invify.enums.ReturnCode;
 import com.invify.enums.Role;
+import com.invify.enums.SubscriptionPlan;
 import com.invify.repositories.UserRepository;
 import com.invify.services.user.UserService;
 import com.invify.utils.ResponseAPIUtil;
@@ -14,9 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -63,5 +66,18 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException(e);
         }
         return ResponseAPIUtil.success(ReturnCode.DATA_SUCCESSFULLY_DELETED.getCode(), ReturnCode.DATA_SUCCESSFULLY_DELETED.getMessage());
+    }
+
+    @Override
+    public APIResponseDTO updateUser(UserRequest request) {
+        User user = userRepository.findByEmailOrUserId(request.getEmail(), request.getUserId()).orElseThrow(() -> new UsernameNotFoundException("email not found"));
+
+        user.setFullName(request.getFullName());
+        user.setSubscriptionPlan(SubscriptionPlan.valueOf(request.getSubscriptionPlan().toUpperCase()));
+        user.setActiveStatus(request.getActiveStatus());
+
+        userRepository.save(user);
+
+        return ResponseAPIUtil.success(ReturnCode.DATA_SUCCESSFULLY_UPDATED.getCode(), ReturnCode.DATA_SUCCESSFULLY_UPDATED.getMessage());
     }
 }

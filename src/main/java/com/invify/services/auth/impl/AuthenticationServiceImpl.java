@@ -48,12 +48,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public APIResponseDTO registerUser(UserRegisterDTO userRegisterDTO) {
+        userRepository.findByEmail(userRegisterDTO.getEmail()).ifPresent(user -> {
+            throw new RuntimeException("Email already exists");
+        });
+
         User user = User.builder()
                 .userId(UUID.randomUUID())
                 .email(userRegisterDTO.getEmail())
                 .password(passwordEncoder.encode(userRegisterDTO.getPassword()))
                 .fullName(userRegisterDTO.getFullName())
                 .role(Role.CUSTOMER)
+                .activeStatus(1)
                 .createdDate(LocalDateTime.now())
                 .build();
 

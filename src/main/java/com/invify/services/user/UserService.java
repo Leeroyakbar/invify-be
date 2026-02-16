@@ -11,4 +11,6 @@ public interface UserService {
     APIResponsePageDTO getAllUsersCustomer(UserRequest request);
 
     APIResponseDTO deleteUser(UUID userId);
+
+    APIResponseDTO updateUser(UserRequest userRequest);
 }

@@ -4,7 +4,9 @@ import com.invify.dto.APIResponseDTO;
 import com.invify.dto.APIResponsePageDTO;
 import com.invify.dto.UserRequest;
 import com.invify.services.user.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -24,5 +26,10 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public APIResponseDTO deleteUser(@PathVariable UUID userId) {
         return userService.deleteUser(userId);
+    }
+
+    @PutMapping("/update-user")
+    public APIResponseDTO updateUser(@Valid @RequestBody UserRequest userRequest) {
+        return userService.updateUser(userRequest);
     }
 }
