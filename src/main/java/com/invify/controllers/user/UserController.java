@@ -1,10 +1,13 @@
 package com.invify.controllers.user;
 
+import com.invify.dto.APIResponseDTO;
 import com.invify.dto.APIResponsePageDTO;
 import com.invify.dto.UserRequest;
 import com.invify.services.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,5 +19,10 @@ public class UserController {
     @PostMapping("/get-all-customers")
     public APIResponsePageDTO getAllUserCustomer(@RequestBody UserRequest request) {
         return userService.getAllUsersCustomer(request);
+    }
+
+    @DeleteMapping("/{userId}")
+    public APIResponseDTO deleteUser(@PathVariable UUID userId) {
+        return userService.deleteUser(userId);
     }
 }

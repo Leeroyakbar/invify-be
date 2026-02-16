@@ -1,5 +1,6 @@
 package com.invify.services.user.impl;
 
+import com.invify.dto.APIResponseDTO;
 import com.invify.dto.APIResponsePageDTO;
 import com.invify.dto.UserRequest;
 import com.invify.dto.UserResponseDTO;
@@ -14,6 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 
 @Service
@@ -46,5 +50,18 @@ public class UserServiceImpl implements UserService {
                 allUsers.getTotalElements(),
                 allUsers.getTotalPages()
         );
+    }
+
+
+    @Transactional
+    @Override
+    public APIResponseDTO deleteUser(UUID userId) {
+        try {
+            userRepository.updateActiveStatus(userId, 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        return ResponseAPIUtil.success(ReturnCode.DATA_SUCCESSFULLY_DELETED.getCode(), ReturnCode.DATA_SUCCESSFULLY_DELETED.getMessage());
     }
 }
