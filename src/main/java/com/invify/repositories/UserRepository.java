@@ -13,6 +13,8 @@ import java.util.UUID;
 
 public interface UserRepository extends JpaRepository<User, UUID> {
 
+    Optional<User> findByUserId(UUID userId);
+
     Optional<User> findByEmail(String email);
 
     Optional<User> findByEmailOrUserId(String email, UUID userId);
@@ -21,13 +23,16 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Page<User> findAllByRoleOrEmailOrFullName(Role role, String email, String fullName, Pageable pageable);
 
     @Query(value = "SELECT u FROM User u WHERE u.role = ?1 " +
-            "AND (LOWER(u.email) LIKE LOWER(CONCAT(?2, '%'))" +
-            "AND LOWER(u.fullName) LIKE LOWER(CONCAT(?3, '%')))" +
-            "AND u.activeStatus = 1")
+            "AND (?2 IS NULL OR ?2 = '' OR LOWER(u.email) LIKE LOWER(CONCAT(?2, '%'))" +
+            "OR ?3 IS NULL OR ?3 = '' OR LOWER(u.fullName) LIKE LOWER(CONCAT(?3, '%')))")
     Page<User> searchByRoleAndContact(Role role, String email, String fullName, Pageable pageable);
 
 
     @Modifying
     @Query(value = "UPDATE User u set u.activeStatus = :activeStatus where u.userId = :userId ")
     void updateActiveStatus(UUID userId, Integer activeStatus);
+
+    @Query(value = "SELECT it.user FROM InvitationTransaction it " +
+            "WHERE it.invitation.invitationId = ?1 ")
+    Optional<User> findByInvitationId(UUID invitationId);
 }

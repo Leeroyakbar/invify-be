@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserRequest {
+public class UserRequest extends PageableRequest {
     private UUID userId;
     private String email;
     private String fullName;
@@ -22,7 +22,4 @@ public class UserRequest {
     @Min(value = 0, message = "Status harus 0 atau 1")
     @Max(value = 1, message = "Status harus 0 atau 1")
     private Integer activeStatus;
-
-    private int page;
-    private int size;
 }

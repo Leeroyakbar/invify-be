@@ -6,7 +6,6 @@ import com.invify.dto.UserRequest;
 import com.invify.services.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;

@@ -8,6 +8,7 @@ import com.invify.entities.User;
 import com.invify.enums.ReturnCode;
 import com.invify.enums.Role;
 import com.invify.enums.SubscriptionPlan;
+import com.invify.exceptions.NotFoundException;
 import com.invify.repositories.UserRepository;
 import com.invify.services.user.UserService;
 import com.invify.utils.ResponseAPIUtil;
@@ -19,7 +20,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -27,6 +27,32 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+
+    @Override
+    public User getUserById(UUID userId) {
+        return userRepository.findByUserId(userId).orElseThrow(() -> new UsernameNotFoundException("user not found"));
+    }
+
+    @Override
+    public User getUserDetailByInvitationId(UUID invitationId) {
+        return userRepository.findByInvitationId(invitationId).orElseThrow(() -> new NotFoundException("user not found"));
+    }
+
+    @Override
+    public APIResponseDTO getUserDetail(UserRequest request) {
+        User user = userRepository.findByEmailOrUserId(null, request.getUserId()).orElseThrow(() -> new UsernameNotFoundException("user not found"));
+
+        UserResponseDTO.UserResponseDTOBuilder response = UserResponseDTO.builder()
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .role(user.getRole().name())
+                .subscriptionPlan(user.getSubscriptionPlan())
+                .activeStatus(user.getActiveStatus())
+                .createdDate(user.getCreatedDate().toLocalDate())
+                .orderCount(10);
+
+        return ResponseAPIUtil.success(response, ReturnCode.DATA_SUCCESSFULLY_FETCHED.getMessage());
+    }
 
     @Override
     public APIResponsePageDTO getAllUsersCustomer(UserRequest request) {
